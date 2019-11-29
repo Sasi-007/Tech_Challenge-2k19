@@ -1,0 +1,139 @@
+			Metro Construction Planning (100 Marks)
+
+Ten years ago, Delhi Metro started its operation by opening the first line in central Delhi. The government received enormous response from various sections of society of Delhi. People started using Metro services so often that only after 6 months all the train coaches filled tightly by the travelers. After 10 years now, Metro expanded so much that now it covers almost all the major areas of the city. Today around 6 different lines are running in different areas which are connecting not only Delhi but also other NCR regions to Delhi. Lakhs of people using Metro service every day and today it becomes one of the top 10 well known Metro networks all over the world.
+
+For this new line, Metro Planning team found various localities where metro stations can be built and they identified various L localities around Delhi where commercial agreements are established. Goods were traded between localities via road that had a commercial agreement. It is possible to connect any two localities by a line segment in the city.
+
+Eventually, the MLAs of localities decided to organize this commerce. They designed a commerce route that connected every locality around the city. The route met the following requirements:
+
+It could start in any of the localities, visited each of the locality around the city, and finally ended in another locality different from the starting locality.
+
+The route visited each locality exactly once.
+
+Every pair of consecutively visited localities in the route had a commercial agreement.
+
+Every pair of consecutively visited localities in the route was connected by a line segment.
+
+To avoid crashes on route via road, the route never crossed itself.
+
+
+
+The figure shows the city and the localities around in it in different parts of city. The lines (both thick and thin) represent commercial agreements between localities. The thick lines represent a commerce route starting in locality 2 and ending in locality 5. This route never crosses itself. It would not be legal, for example, to construct a route that went from 2 to 6 to 5 to 1, since the route would cross itself.
+
+Localities in the city are numbered from 1 through L moving in clockwise direction.
+
+
+
+
+Input Format
+Input 1: It will be the integer that tells the number of localities L in the city
+Input 2: It will be the integer that represents the number of commercial agreements, N
+Input 3: It will be the multi-dimensional integer array where:
+First line tell the number of rows
+Second line tell the number of columns
+Each Next N lines represents a unique commercial agreement between localities. Every line contains two space-separated integers that represent the two localities involved in the agreement.
+c1 c2
+c1 c2
+
+Constraints
+3 ≤ L ≤ 1000
+1<= N <=50
+
+
+Output Format
+It will be the integer array representing the order in which the localities are visited in the commerce route.
+
+Note: If it’s not possible to construct a commerce route that meets all the requirements, return an array having -1 as only element.
+
+Sample TestCase 1
+
+Input
+
+7
+9
+9
+2
+14 
+51
+17
+56
+23
+34
+26
+46
+67
+
+Output
+
+2
+3
+4
+1
+7
+6
+5
+
+
+
+
+ Answer Coding:
+
+#include <cstdio>
+
+#define REP( i, n ) \
+    for ( int i = 0; i < (n); i++ )
+
+const int MAXN = 2001;
+
+int N, M;
+int u, v;
+int lo, hi, dir;
+bool way[MAXN][MAXN];
+bool dp[MAXN][MAXN][2];
+
+int main() {
+
+    scanf( "%d %d", &N, &M );
+    REP( i, M ) {
+        scanf( "%d %d", &u, &v );
+        u--; v--;
+        way[u][v] = way[v][u] = true;
+    }
+
+    REP( i, N )
+        dp[i][i][0] = dp[i][i][1] = way[i][i] = true;
+
+    REP( d, N ) if ( d )
+    REP( i, N ) {
+        int j = i + d;
+        dp[i][j][0] = ( dp[i + 1][j][0] && way[(i+1)%N][i] ) ||
+                      ( dp[i + 1][j][1] && way[i][j%N] );
+        dp[i][j][1] = ( dp[i][j - 1][1] && way[(j-1)%N][j%N] ) ||
+                      ( dp[i][j - 1][0] && way[i][j%N] );
+    }
+
+    for ( lo = 0; lo < N; lo++ )
+        if ( dp[lo][lo+N-1][0] || dp[lo][lo+N-1][1] )
+            break;
+
+    if ( lo == N ) {
+        printf( "-1\n" );
+        return 0;
+    }
+
+    hi = lo + N - 1;
+    dir = dp[lo][hi][1];
+    while ( lo <= hi )
+        if ( dir ) {
+            if ( dp[lo][hi-1][dir^1] && way[lo][hi%N] ) dir ^= 1;
+            printf( "%d\n", hi + 1 );
+            hi--;
+        } else {
+            if ( dp[lo+1][hi][dir^1] && way[lo][hi%N] ) dir ^= 1;
+            printf( "%d\n", lo + 1 );
+            lo++;
+        }
+
+    return 0;
+}
+
